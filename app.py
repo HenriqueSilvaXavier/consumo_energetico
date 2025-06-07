@@ -5,6 +5,7 @@ import pyotp
 import qrcode
 from io import BytesIO
 from PIL import Image
+import os
 
 USERS_DB = "users.json"
 
@@ -139,4 +140,6 @@ with gr.Blocks() as app:
             app.load(renderizar, inputs=[estado_login, email_login], outputs=[mensagem, principal, outra])
 
 # Lançamento do app
-app.launch()
+port = int(os.environ.get("PORT", 7860))
+app.launch(server_name="0.0.0.0", server_port=port)
+
