@@ -1,30 +1,25 @@
+# Imagem base oficial do Python
 FROM python:3.10-slim
 
+# Define variáveis de ambiente
+ENV PYSPARK_PYTHON=python3 \
+    JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64 \
+    PATH=$PATH:/usr/lib/jvm/java-11-openjdk-amd64/bin
+
 # Instala dependências do sistema
-RUN apt-get update && apt-get install -y openjdk-11-jdk curl && \
+RUN apt-get update && \
+    apt-get install -y openjdk-11-jdk curl && \
     rm -rf /var/lib/apt/lists/*
 
-# Variáveis de ambiente para Java e Spark
-ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
-ENV PATH="$JAVA_HOME/bin:$PATH"
+# Copia os arquivos para o contêiner
+WORKDIR /app
+COPY . /app
 
-# Instala o Spark manualmente
-ENV SPARK_VERSION=3.4.1
-RUN curl -O https://downloads.apache.org/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop3.tgz && \
-    tar -xzf spark-$SPARK_VERSION-bin-hadoop3.tgz && \
-    mv spark-$SPARK_VERSION-bin-hadoop3 /opt/spark && \
-    rm spark-$SPARK_VERSION-bin-hadoop3.tgz
-
-ENV SPARK_HOME=/opt/spark
-ENV PATH=$SPARK_HOME/bin:$PATH
-ENV PYSPARK_PYTHON=python3
-
-# Instala as libs Python
-COPY requirements.txt .
+# Instala dependências Python
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copia o app
-COPY . /app
-WORKDIR /app
+# Expõe a porta do Gradio
+EXPOSE 7860
 
+# Comando para rodar o app Gradio
 CMD ["python", "app.py"]
