@@ -1,4 +1,4 @@
-gradio
+gradio>=4.31.0
 pandas
 matplotlib
 pyspark
