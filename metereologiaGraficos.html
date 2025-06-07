@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gráfico Meteorológico - Recife</title>
+  <script type="module">
+    import { Client } from "https://esm.sh/@gradio/client";
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      try {
+        const client = await Client.connect("https://da64e5a6e37578c2e9.gradio.live/");
+        const variaveisContainer = document.getElementById("variaveis-container");
+
+        // Obter informações da API
+        const apiInfo = await client.view_api();
+        const predictEndpoint = apiInfo.named_endpoints["/predict"];
+
+        if (!predictEndpoint) {
+          console.error("Endpoint '/predict' não encontrado.");
+          return;
+        }
+
+        const variavelParam = predictEndpoint.parameters.find(
+          param => param.label === "Selecione uma ou mais variáveis para o gráfico"
+        );
+
+        let variaveisDisponiveis = [];
+
+        if (variavelParam?.python_type?.type?.includes("Literal")) {
+          const raw = variavelParam.python_type.type;
+          const match = raw.match(/Literal\[(.*)\]/);
+          if (match && match[1]) {
+            // Divide corretamente e remove aspas extras
+            variaveisDisponiveis = match[1]
+              .split(/,\s*/)
+              .map(v => v.trim().replace(/^['"]|['"]$/g, ""));
+          }
+        }
+
+        if (variaveisDisponiveis.length === 0) {
+          variaveisContainer.innerHTML = "<p><em>Nenhuma variável disponível.</em></p>";
+        } else {
+          // Inserir variáveis no DOM
+          variaveisDisponiveis.forEach(variavel => {
+            const label = document.createElement("label");
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.name = "variavel";
+            checkbox.value = variavel;
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(` ${variavel}`));
+            variaveisContainer.appendChild(label);
+            variaveisContainer.appendChild(document.createElement("br"));
+          });
+        }
+
+        const btn = document.getElementById("gerar");
+
+        btn.addEventListener("click", async () => {
+          const variaveisSelecionadas = Array.from(document.querySelectorAll('input[name="variavel"]:checked')).map(e => e.value);
+          const tipoGrafico = document.querySelector('input[name="tipo"]:checked')?.value;
+          const agregacao = document.querySelector('input[name="agregacao"]:checked')?.value;
+          const titulo = document.getElementById("titulo").value;
+          const grid = document.getElementById("grid").checked;
+
+          if (variaveisSelecionadas.length === 0) {
+            alert("Selecione pelo menos uma variável.");
+            return;
+          }
+
+          const result = await client.predict("/predict", {
+            variaveis: variaveisSelecionadas,
+            tipo_grafico: tipoGrafico,
+            agregacao: agregacao,
+            titulo: titulo,
+            grid: grid
+        });
+
+
+          // Exibir o gráfico
+          document.getElementById("grafico").src = result.data;
+        });
+
+      } catch (error) {
+        console.error("Erro ao carregar interface:", error);
+        document.body.innerHTML += "<p style='color:red;'>Erro ao carregar os dados. Tente novamente mais tarde.</p>";
+      }
+    });
+  </script>
+</head>
+<body style="font-family: sans-serif; margin: 2rem;">
+  <h1>Gráficos Meteorológicos Personalizados - RECIFE</h1>
+
+  <fieldset>
+    <legend><strong>Selecione Variáveis:</strong></legend>
+    <div id="variaveis-container">
+    </div>
+  </fieldset>
+
+  <fieldset>
+    <legend><strong>Tipo de Gráfico:</strong></legend>
+    <label><input type="radio" name="tipo" value="Linha" checked> Linha</label>
+    <label><input type="radio" name="tipo" value="Barras"> Barras</label>
+    <label><input type="radio" name="tipo" value="Área"> Área</label>
+  </fieldset>
+
+  <fieldset>
+    <legend><strong>Agregação:</strong></legend>
+    <label><input type="radio" name="agregacao" value="Hora" checked> Hora</label>
+    <label><input type="radio" name="agregacao" value="Dia"> Dia</label>
+    <label><input type="radio" name="agregacao" value="Mês"> Mês</label>
+  </fieldset>
+
+  <label for="titulo"><strong>Título do Gráfico:</strong></label><br>
+  <input type="text" id="titulo" placeholder="Digite o título"><br><br>
+
+  <label><input type="checkbox" id="grid" checked> Mostrar grade no gráfico</label><br><br>
+
+  <button id="gerar">Gerar Gráfico</button>
+
+  <h2>Gráfico Gerado</h2>
+  <img id="grafico" style="max-width: 100%; border: 1px solid #ccc; padding: 1rem;" />
+</body>
+</html>

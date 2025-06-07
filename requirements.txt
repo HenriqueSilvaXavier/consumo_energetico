@@ -1,0 +1,13 @@
+gradio
+pandas
+matplotlib
+pyspark
+holidays
+statsmodels
+numpy
+plotly
+dash
+bcrypt
+pyotp
+qrcode
+pillow
