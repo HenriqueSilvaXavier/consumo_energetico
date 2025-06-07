@@ -1,0 +1,7 @@
+{
+  "admin@example.com": {
+    "password": "$2b$12$HASHDA SENHA BCRYPT",
+    "mfa_secret": "CHAVE_BASE32",
+    "verified": true
+  }
+}
