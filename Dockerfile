@@ -1,28 +1,32 @@
 FROM python:3.10-slim
 
-# Instala dependências de sistema (Java para Spark, utilitários)
+# Define ambiente não interativo para evitar prompts
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Atualiza repositórios e instala dependências do sistema (incluindo Java)
 RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
+    openjdk-11-jre-headless \
     curl \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Define variáveis de ambiente para Java
+# Define variáveis de ambiente para o Java
 ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# Instala o Spark
+# Instala o Apache Spark
 ENV SPARK_VERSION=3.4.1
-RUN curl -O https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz && \
-    tar -xzf spark-${SPARK_VERSION}-bin-hadoop3.tgz && \
+RUN curl -fsSL https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz -o spark.tgz && \
+    tar -xzf spark.tgz && \
     mv spark-${SPARK_VERSION}-bin-hadoop3 /opt/spark && \
-    rm spark-${SPARK_VERSION}-bin-hadoop3.tgz
+    rm spark.tgz
 
+# Define variáveis de ambiente do Spark
 ENV SPARK_HOME=/opt/spark
 ENV PATH=$SPARK_HOME/bin:$PATH
 ENV PYSPARK_PYTHON=python3
 
-# Instala as bibliotecas Python
+# Instala bibliotecas Python
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
@@ -33,5 +37,5 @@ WORKDIR /app
 # Expõe a porta padrão do Gradio
 EXPOSE 7860
 
-# Comando para iniciar o app (ajuste para seu arquivo principal)
+# Comando para iniciar a aplicação (ajuste se necessário)
 CMD ["python", "app.py"]
