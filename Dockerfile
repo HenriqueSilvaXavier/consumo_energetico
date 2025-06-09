@@ -3,19 +3,12 @@ FROM python:3.10-slim
 # Define ambiente não interativo para evitar prompts do apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN \
-  sed -i \
-    -e 's|deb.debian.org|archive.debian.org|g' \
-    -e 's|security.debian.org/debian-security .* updates|security.debian.org/debian-security bullseye-security|g' \
-    /etc/apt/sources.list && \
-  echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until && \
-  apt-get update -o Acquire::AllowReleaseInfoChange=true && \
-  apt-get install -y --no-install-recommends \
-    openjdk-11-jre-headless \
-    curl \
-    git \
-    ca-certificates && \
-  rm -rf /var/lib/apt/lists/*
+RUN echo "deb http://archive.debian.org/debian bullseye main" > /etc/apt/sources.list && \
+    echo "deb http://archive.debian.org/debian-security bullseye-security main" >> /etc/apt/sources.list && \
+    echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until && \
+    apt-get update -o Acquire::AllowReleaseInfoChange=true && \
+    apt-get install -y --no-install-recommends openjdk-11-jre-headless curl git ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
 ENV PATH="$JAVA_HOME/bin:$PATH"
