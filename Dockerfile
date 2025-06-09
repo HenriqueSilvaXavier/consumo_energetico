@@ -19,7 +19,7 @@ ENV PATH="$JAVA_HOME/bin:$PATH"
 
 # Instala Apache Spark
 ENV SPARK_VERSION=3.4.1
-RUN curl -fsSL "https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz" -o spark.tgz && \
+RUN curl -fsSL "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz" -o spark.tgz && \
     tar -xzf spark.tgz && \
     mv "spark-${SPARK_VERSION}-bin-hadoop3" /opt/spark && \
     rm spark.tgz
