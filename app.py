@@ -17,7 +17,9 @@ import platform
 if platform.system() == "Windows":
     os.environ["JAVA_HOME"] = "C:/Program Files/Java/jdk-11"
     os.environ["SPARK_HOME"] = "C:/spark"
-    
+elif platform.system() == "Linux":
+    os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-11-openjdk-amd64"
+
 port = int(os.environ.get("PORT", 7860))
 
 # Configuração mais robusta do Spark
