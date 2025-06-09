@@ -1,33 +1,44 @@
 FROM python:3.10-slim
 
 # Define ambiente não interativo para evitar prompts do apt
-ENV DEBIAN_FRONTEND=noninteractive
+:contentReference[oaicite:1]{index=1}
 
-# Corrige repositórios expirados e instala dependências do sistema
-RUN sed -i 's|deb.debian.org|deb.archive.debian.org|g' /etc/apt/sources.list && \
-    apt-get update -o Acquire::AllowReleaseInfoChange=true -o Acquire::Check-Valid-Until=false && \
-    apt-get install -y --no-install-recommends openjdk-11-jre-headless curl git ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
+RUN \
+  # :contentReference[oaicite:2]{index=2}
+  sed -i \
+    :contentReference[oaicite:3]{index=3} \
+    :contentReference[oaicite:4]{index=4} \
+    :contentReference[oaicite:5]{index=5}
+  # :contentReference[oaicite:6]{index=6}
+  :contentReference[oaicite:7]{index=7}
+  # :contentReference[oaicite:8]{index=8}
+  :contentReference[oaicite:9]{index=9} \
+  :contentReference[oaicite:10]{index=10} \
+    :contentReference[oaicite:11]{index=11} \
+    curl \
+    git \
+    ca-certificates && \
+  :contentReference[oaicite:12]{index=12}
 
 # Define variáveis de ambiente para o Java
-ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
-ENV PATH="$JAVA_HOME/bin:$PATH"
+:contentReference[oaicite:13]{index=13}
+:contentReference[oaicite:14]{index=14}
 
 # Instala o Apache Spark
-ENV SPARK_VERSION=3.4.1
-RUN curl -fsSL https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz -o spark.tgz && \
-    tar -xzf spark.tgz && \
-    mv spark-${SPARK_VERSION}-bin-hadoop3 /opt/spark && \
-    rm spark.tgz
+:contentReference[oaicite:15]{index=15}
+:contentReference[oaicite:16]{index=16} \
+    :contentReference[oaicite:17]{index=17} \
+    :contentReference[oaicite:18]{index=18} \
+    :contentReference[oaicite:19]{index=19}
 
 # Define variáveis de ambiente do Spark
-ENV SPARK_HOME=/opt/spark
-ENV PATH=$SPARK_HOME/bin:$PATH
-ENV PYSPARK_PYTHON=python3
+:contentReference[oaicite:20]{index=20}
+:contentReference[oaicite:21]{index=21}
+:contentReference[oaicite:22]{index=22}
 
 # Instala bibliotecas Python
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+:contentReference[oaicite:23]{index=23}
+:contentReference[oaicite:24]{index=24}
 
 # Copia o código da aplicação
 COPY . /app
@@ -37,4 +48,4 @@ WORKDIR /app
 EXPOSE 7860
 
 # Comando para iniciar a aplicação
-CMD ["python", "app.py"]
+:contentReference[oaicite:25]{index=25}
