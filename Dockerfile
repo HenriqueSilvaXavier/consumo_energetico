@@ -4,11 +4,9 @@ FROM python:3.10-slim
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Atualiza repositórios e instala dependências do sistema (incluindo Java)
-RUN apt-get update --allow-releaseinfo-change && apt-get install -y \
-    openjdk-11-jre-headless \
-    curl \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+RUN apt-get update -o Acquire::AllowReleaseInfoChange=true && \
+    apt-get install -y openjdk-11-jre-headless curl git && \
+    rm -rf /var/lib/apt/lists/*
 
 # Define variáveis de ambiente para o Java
 ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
