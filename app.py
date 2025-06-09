@@ -25,9 +25,8 @@ port = int(os.environ.get("PORT", 7860))
 # Configuração mais robusta do Spark
 spark = SparkSession.builder \
     .appName("PrevisaoTemperatura") \
-    .master("local[*]") \
-    .config("spark.driver.memory", "2g") \
-    .config("spark.executor.memory", "2g") \
+    .config("spark.driver.memory", "16g") \
+    .config("spark.executor.memory", "16g") \
     .config("spark.driver.maxResultSize", "1g") \
     .config("spark.sql.adaptive.enabled", "true") \
     .config("spark.sql.adaptive.coalescePartitions.enabled", "true") \
