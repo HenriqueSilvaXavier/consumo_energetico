@@ -1,11 +1,12 @@
 FROM python:3.10-slim
 
-# Define ambiente não interativo para evitar prompts
+# Define ambiente não interativo para evitar prompts do apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Atualiza repositórios e instala dependências do sistema (incluindo Java)
-RUN apt-get update -o Acquire::AllowReleaseInfoChange=true && \
-    apt-get install -y openjdk-11-jre-headless curl git && \
+# Corrige repositórios expirados e instala dependências do sistema
+RUN sed -i 's|deb.debian.org|deb.archive.debian.org|g' /etc/apt/sources.list && \
+    apt-get update -o Acquire::AllowReleaseInfoChange=true -o Acquire::Check-Valid-Until=false && \
+    apt-get install -y --no-install-recommends openjdk-11-jre-headless curl git ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Define variáveis de ambiente para o Java
@@ -35,5 +36,5 @@ WORKDIR /app
 # Expõe a porta padrão do Gradio
 EXPOSE 7860
 
-# Comando para iniciar a aplicação (ajuste se necessário)
+# Comando para iniciar a aplicação
 CMD ["python", "app.py"]
