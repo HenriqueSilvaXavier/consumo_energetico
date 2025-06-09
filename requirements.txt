@@ -1,10 +1,10 @@
 gradio>=4.31.0
-pandas
+pandas==1.5.3
 matplotlib
-pyspark
+pyspark==3.5.0
 holidays
 statsmodels
-numpy
+numpy==1.23.5
 plotly
 dash
 bcrypt
