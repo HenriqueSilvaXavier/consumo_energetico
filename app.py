@@ -5,7 +5,6 @@ import pyotp
 import qrcode
 from io import BytesIO
 from PIL import Image
-
 from pyspark.sql import SparkSession
 from pyspark.ml.feature import VectorAssembler
 from pyspark.ml.regression import RandomForestRegressor
@@ -13,11 +12,13 @@ from pyspark.sql.types import StructType, StructField, DoubleType, IntegerType
 import pandas as pd
 import matplotlib.pyplot as plt
 import os
-
 import platform
+
 if platform.system() == "Windows":
     os.environ["JAVA_HOME"] = "C:/Program Files/Java/jdk-11"
     os.environ["SPARK_HOME"] = "C:/spark"
+    
+port = int(os.environ.get("PORT", 7860))
 
 # Configuração mais robusta do Spark
 spark = SparkSession.builder \
@@ -437,7 +438,7 @@ with gr.Blocks() as app:
 
 if __name__ == "__main__":
     try:
-        app.launch(share=False, server_name="127.0.0.1", server_port=7860)
+        app.launch(server_name="0.0.0.0", server_port=port)
     finally:
         # Limpar recursos do Spark
         spark.stop()
