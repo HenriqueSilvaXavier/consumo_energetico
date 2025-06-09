@@ -1,51 +1,41 @@
 FROM python:3.10-slim
 
 # Define ambiente não interativo para evitar prompts do apt
-:contentReference[oaicite:1]{index=1}
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN \
-  # :contentReference[oaicite:2]{index=2}
   sed -i \
-    :contentReference[oaicite:3]{index=3} \
-    :contentReference[oaicite:4]{index=4} \
-    :contentReference[oaicite:5]{index=5}
-  # :contentReference[oaicite:6]{index=6}
-  :contentReference[oaicite:7]{index=7}
-  # :contentReference[oaicite:8]{index=8}
-  :contentReference[oaicite:9]{index=9} \
-  :contentReference[oaicite:10]{index=10} \
-    :contentReference[oaicite:11]{index=11} \
+    -e 's|deb.debian.org|archive.debian.org|g' \
+    -e 's|security.debian.org/debian-security .* updates|security.debian.org/debian-security bullseye-security|g' \
+    /etc/apt/sources.list && \
+  echo 'Acquire::Check-Valid-Until "false";' > /etc/apt/apt.conf.d/99no-check-valid-until && \
+  apt-get update -o Acquire::AllowReleaseInfoChange=true && \
+  apt-get install -y --no-install-recommends \
+    openjdk-11-jre-headless \
     curl \
     git \
     ca-certificates && \
-  :contentReference[oaicite:12]{index=12}
+  rm -rf /var/lib/apt/lists/*
 
-# Define variáveis de ambiente para o Java
-:contentReference[oaicite:13]{index=13}
-:contentReference[oaicite:14]{index=14}
+ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# Instala o Apache Spark
-:contentReference[oaicite:15]{index=15}
-:contentReference[oaicite:16]{index=16} \
-    :contentReference[oaicite:17]{index=17} \
-    :contentReference[oaicite:18]{index=18} \
-    :contentReference[oaicite:19]{index=19}
+ENV SPARK_VERSION=3.4.1
+RUN curl -fsSL "https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz" -o spark.tgz && \
+    tar -xzf spark.tgz && \
+    mv "spark-${SPARK_VERSION}-bin-hadoop3" /opt/spark && \
+    rm spark.tgz
 
-# Define variáveis de ambiente do Spark
-:contentReference[oaicite:20]{index=20}
-:contentReference[oaicite:21]{index=21}
-:contentReference[oaicite:22]{index=22}
+ENV SPARK_HOME=/opt/spark
+ENV PATH=$SPARK_HOME/bin:$PATH
+ENV PYSPARK_PYTHON=python3
 
-# Instala bibliotecas Python
-:contentReference[oaicite:23]{index=23}
-:contentReference[oaicite:24]{index=24}
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copia o código da aplicação
 COPY . /app
 WORKDIR /app
 
-# Expõe a porta padrão do Gradio
 EXPOSE 7860
 
-# Comando para iniciar a aplicação
-:contentReference[oaicite:25]{index=25}
+CMD ["python", "app.py"]
