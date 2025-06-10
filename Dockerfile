@@ -1,40 +1,27 @@
-FROM debian:bullseye-slim
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
-ENV DEBIAN_FRONTEND=noninteractive
+# Install OpenJDK 11
+RUN apt-get update && apt-get install -y openjdk-11-jdk && apt-get clean
 
-# Repositórios oficiais do bullseye
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-      ca-certificates \
-      curl \
-      git \
-      openjdk-11-jre-headless \
-      python3 \
-      python3-pip && \
-    rm -rf /var/lib/apt/lists/*
+# Set JAVA_HOME environment variable
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+ENV PATH=$JAVA_HOME/bin:$PATH
 
-# Variáveis de ambiente Java
-ENV JAVA_HOME="/usr/lib/jvm/java-11-openjdk-amd64"
-ENV PATH="$JAVA_HOME/bin:$PATH"
+# Install Python dependencies
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Instala Apache Spark
-ENV SPARK_VERSION=3.4.1
-RUN curl -fsSL "https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz" -o spark.tgz && \
-    tar -xzf spark.tgz && \
-    mv "spark-${SPARK_VERSION}-bin-hadoop3" /opt/spark && \
-    rm spark.tgz
+# Copy the application code
+COPY . .
 
+# Set environment variables for Spark (optional, adjust as needed)
 ENV SPARK_HOME=/opt/spark
 ENV PATH=$SPARK_HOME/bin:$PATH
-ENV PYSPARK_PYTHON=python3
 
-# Dependências Python
-COPY requirements.txt .
-RUN pip3 install --upgrade pip && pip3 install -r requirements.txt
-
-# Código da aplicação
-COPY . /app
-WORKDIR /app
-
+# Expose the port for Gradio
 EXPOSE 7860
-CMD ["python3", "app.py"]
+
+# Command to run the application
+CMD ["python", "app.py"]
